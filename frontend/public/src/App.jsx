@@ -23,7 +23,7 @@ const App = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/employees", {
+      const res = await axios.get("https://recruitly-employee-management.onrender.com/api/employees", {
         params: {
           name: filteredName,
           department: filteredDept,
@@ -56,7 +56,7 @@ const App = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      await axios.delete(`https://recruitly-employee-management.onrender.com/api/employees/${id}`);
       fetchEmployees();
       alert("Employee deleted");
     } catch (err) {
@@ -73,10 +73,10 @@ const App = () => {
 
     try {
       if (editData) {
-        await axios.put(`http://localhost:5000/api/employees/${editData._id}`, formData);
+        await axios.put(`https://recruitly-employee-management.onrender.com/api/employees/${editData._id}`, formData);
         alert("Employee updated");
       } else {
-        await axios.post("http://localhost:5000/api/employees", formData);
+        await axios.post("https://recruitly-employee-management.onrender.com/api/employees", formData);
         alert("Employee added");
       }
       setModalOpen(false);
