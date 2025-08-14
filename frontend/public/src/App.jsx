@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaSearch, FaEdit, FaTrash } from "react-icons/fa";
+import { FaSearch, FaEdit, FaTrash, FaFileExport } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const departments = ["Engineering", "Marketing", "HR", "Finance", "Sales", "Operations"];
 
 const App = () => {
   const [employees, setEmployees] = useState([]);
-  const [allEmployees, setAllEmployees] = useState([]); // Store all employees for client-side filtering
+  const [allEmployees, setAllEmployees] = useState([]);
   const [filteredName, setFilteredName] = useState("");
   const [filteredDept, setFilteredDept] = useState("");
   const [statusFilter, setStatusFilter] = useState(false);
@@ -35,24 +35,42 @@ const App = () => {
   const applyFilters = (data) => {
     let filtered = [...data];
     
-    // Apply name filter
     if (filteredName) {
       filtered = filtered.filter(emp => 
         emp.name.toLowerCase().includes(filteredName.toLowerCase())
       );
     }
     
-    // Apply department filter
     if (filteredDept) {
       filtered = filtered.filter(emp => emp.department === filteredDept);
     }
     
-    // Apply status filter
     if (statusFilter) {
       filtered = filtered.filter(emp => emp.status === "Active");
     }
     
     setEmployees(filtered);
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'Department', 'Role', 'Salary', 'Status'];
+    const csvRows = employees.map(emp => [
+      `"${emp.name}"`,
+      `"${emp.department}"`,
+      `"${emp.role}"`,
+      `"${emp.salary}"`,
+      `"${emp.status}"`
+    ].join(','));
+    
+    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'employees.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   useEffect(() => {
@@ -162,6 +180,12 @@ const App = () => {
             className="bg-gradient-to-r from-pink-500 to-orange-400 hover:scale-105 transform transition px-5 py-2 rounded-lg shadow-lg"
           >
             Add Employee
+          </button>
+          <button
+            onClick={exportToCSV}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105 transform transition px-5 py-2 rounded-lg shadow-lg flex items-center gap-2"
+          >
+            <FaFileExport /> Export to CSV
           </button>
         </div>
 
