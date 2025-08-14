@@ -7,6 +7,7 @@ const departments = ["Engineering", "Marketing", "HR", "Finance", "Sales", "Oper
 
 const App = () => {
   const [employees, setEmployees] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]); // Store all employees for client-side filtering
   const [filteredName, setFilteredName] = useState("");
   const [filteredDept, setFilteredDept] = useState("");
   const [statusFilter, setStatusFilter] = useState(false);
@@ -23,21 +24,43 @@ const App = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("https://recruitly-employee-management.onrender.com/api/employees", {
-        params: {
-          name: filteredName,
-          department: filteredDept,
-          status: statusFilter ? "Active" : "",
-        },
-      });
-      setEmployees(res.data);
+      const res = await axios.get("https://recruitly-employee-management.onrender.com/api/employees");
+      setAllEmployees(res.data);
+      applyFilters(res.data);
     } catch (err) {
       alert("Error fetching employees");
     }
   };
 
+  const applyFilters = (data) => {
+    let filtered = [...data];
+    
+    // Apply name filter
+    if (filteredName) {
+      filtered = filtered.filter(emp => 
+        emp.name.toLowerCase().includes(filteredName.toLowerCase())
+      );
+    }
+    
+    // Apply department filter
+    if (filteredDept) {
+      filtered = filtered.filter(emp => emp.department === filteredDept);
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter(emp => emp.status === "Active");
+    }
+    
+    setEmployees(filtered);
+  };
+
   useEffect(() => {
     fetchEmployees();
+  }, []);
+
+  useEffect(() => {
+    applyFilters(allEmployees);
   }, [filteredName, filteredDept, statusFilter]);
 
   const openModal = (data = null) => {
@@ -109,13 +132,14 @@ const App = () => {
               type="text"
               placeholder="Search by name"
               className="pl-9 border border-white/30 bg-white/20 text-white rounded-lg px-3 py-2 w-52 placeholder-gray-300 focus:ring-2 focus:ring-pink-400"
+              value={filteredName}
               onChange={(e) => setFilteredName(e.target.value)}
             />
           </div>
           <select
             className="border border-white/30 bg-white/20 text-white rounded-lg px-3 py-2 w-52 focus:ring-2 focus:ring-blue-400"
+            value={filteredDept}
             onChange={(e) => setFilteredDept(e.target.value)}
-            defaultValue=""
           >
             <option value="">All Departments</option>
             {departments.map((dept) => (
@@ -281,4 +305,4 @@ const App = () => {
   );
 };
 
-export default App;  
+export default App;
